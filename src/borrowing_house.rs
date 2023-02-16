@@ -54,15 +54,21 @@ impl <'a, 'b> smart_house::DeviceInfoProvider for BorrowingDeviceInfoProvider<'a
     }
 }
 
-pub fn run_borrowing_provider() {
-    // Инициализация устройств
+pub fn run_borrowing_provider() -> String {
     let socket2 = SmartSocket {name: smart_house::NAME_DEV_2.to_string(), state: String::from("broken")};
     let thermo = SmartThermometer {name: smart_house::NAME_DEV_3.to_string(), temperature: 25.4};
 
     let info_provider_2 = BorrowingDeviceInfoProvider::new(&socket2, &thermo);
 
+    let rooms = info_provider_2.get_rooms();
+    println!("{} rooms: {:?}", info_provider_2.house.name, rooms);
+
+    let devices = info_provider_2.get_devices();
+    println!("{} Room B devices: {:?}", info_provider_2.house.name, devices);
+
     let report2 = info_provider_2.create_report();
 
     // Выводим отчёты на экран:
     println!("Report #2: {report2}");
+    report2
 }

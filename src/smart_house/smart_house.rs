@@ -14,6 +14,8 @@ struct Room {
 }
 
 impl SmartHouse {
+
+    /// Creates SmartHouse object with static content
     pub fn new() -> Self {
         let mut s = SmartHouse {
             name: String::from("My smart_house"),
@@ -33,6 +35,14 @@ impl SmartHouse {
         s
     }
 
+    /// Returns rooms in the house
+    /// ```
+    /// use hw4::smart_house::smart_house;
+    /// let house = smart_house::SmartHouse::new();
+    /// let rooms = house.get_rooms();
+    /// let comparison = (rooms == ["Room A", "Room B"]) || (rooms == ["Room B", "Room A"]);
+    /// assert!(comparison)
+    /// ```
     pub fn get_rooms(&self) -> [&str; 2] {
         let mut result: [&str; 2] = [""; 2];
         let mut count = 0;
@@ -43,6 +53,14 @@ impl SmartHouse {
         result
     }
 
+    /// Returns devices in required room of the house
+    /// ```
+    /// use hw4::smart_house::smart_house;
+    /// let house = smart_house::SmartHouse::new();
+    /// let devices = house.devices("Room B");
+    /// let comparison = (devices == ["Thermo 1", "Socket 2", ""]) || (devices == ["Socket 2", "Thermo 1", ""]);
+    /// assert!(comparison)
+    /// ```
     pub fn devices(&self, room: &str) -> [&str; 3] {
         let mut result = [""; 3];
         let mut count = 0;
@@ -53,6 +71,40 @@ impl SmartHouse {
         result
     }
 
+    /// Returns report, using user's info provider about devices state
+    /// ```
+    /// use hw4::smart_house::smart_house;
+    /// pub struct SmartSocket {
+    ///     pub name: String,
+    ///     pub state: String
+    /// }
+    /// pub struct OwningDeviceInfoProvider {
+    ///     socket: SmartSocket,
+    /// }
+    /// impl smart_house::DeviceInfoProvider for OwningDeviceInfoProvider {
+    ///     fn get_device_info(&self, room: &str, name: &str) -> String{
+    ///         let info: String;
+    ///         if self.socket.name == name {
+    ///             info = format!("room: {}, device: {}, state: {}", room, self.socket.name, self.socket.state);
+    ///
+    ///         } else {
+    ///             info = format!("room: {}, device: {}, not found", room, self.socket.name);
+    ///         }
+    ///         info
+    ///     }
+    /// }
+    /// let house = smart_house::SmartHouse::new();
+    /// let socket1 = SmartSocket {name: smart_house::NAME_DEV_1.to_string(), state: String::from("working")};
+    /// let info_provider = OwningDeviceInfoProvider{socket: socket1};
+    /// let report = house.create_report(&info_provider);
+    /// let keywords = ["Room A", "Room B", "Socket 1", "state", "not found"];
+    /// let mut result = true;
+    /// for word in keywords {
+    /// if !report.contains(word) {
+    /// result = false;
+    /// }
+    /// }
+    /// assert_eq!(result, true);
     pub fn create_report(&self, informer: &impl DeviceInfoProvider) -> String {
         let mut report = String::from("Report: \n");
         for (room, val) in &self.rooms {
@@ -68,4 +120,61 @@ impl SmartHouse {
 
 pub trait DeviceInfoProvider {
     fn get_device_info(&self, room: &str, name: &str) -> String;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_rooms() {
+        let house = SmartHouse::new();
+        let rooms = house.get_rooms();
+        let comparison = (rooms == ["Room A", "Room B"]) || (rooms == ["Room B", "Room A"]);
+        assert!(comparison)
+    }
+
+    #[test]
+    fn test_devices() {
+        let house = SmartHouse::new();
+        let devices = house.devices("Room B");
+        let comparison = (devices == ["Thermo 1", "Socket 2", ""]) || (devices == ["Socket 2", "Thermo 1", ""]);
+        assert!(comparison)
+    }
+
+    pub struct SmartSocket {
+        pub name: String,
+        pub state: String
+    }
+    pub struct OwningDeviceInfoProvider {
+        socket: SmartSocket,
+    }
+    impl DeviceInfoProvider for OwningDeviceInfoProvider {
+        fn get_device_info(&self, room: &str, name: &str) -> String{
+            let info: String;
+            if self.socket.name == name {
+                info = format!("room: {}, device: {}, state: {}", room, self.socket.name, self.socket.state);
+
+            } else {
+                info = format!("room: {}, device: {}, not found", room, self.socket.name);
+            }
+            info
+        }
+    }
+
+    #[test]
+    fn test_report() {
+        let house = SmartHouse::new();
+        let socket1 = SmartSocket {name: NAME_DEV_1.to_string(), state: String::from("working")};
+        let info_provider = OwningDeviceInfoProvider{socket: socket1};
+        let report = house.create_report(&info_provider);
+        let keywords = ["Room A", "Room B", "Socket 1", "state", "not found"];
+        let mut result = true;
+        for word in keywords {
+            if !report.contains(word) {
+                result = false;
+            }
+        }
+        assert_eq!(result, true);
+    }
 }

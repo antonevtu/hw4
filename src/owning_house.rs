@@ -5,13 +5,11 @@ pub struct SmartSocket {
     pub name: String,
     pub state: String
 }
-pub struct SmartThermometer {
-    pub name: String,
-    pub temperature: f32
-}
+// pub struct SmartThermometer {
+//     pub name: String,
+//     pub temperature: f32
+// }
 
-// Пользовательские поставщики информации об устройствах.
-// Могут как хранить устройства, так и заимствывать.
 pub struct OwningDeviceInfoProvider {
     socket: SmartSocket,
     pub house: smart_house::SmartHouse
@@ -20,7 +18,6 @@ pub struct OwningDeviceInfoProvider {
 impl OwningDeviceInfoProvider {
     pub fn new() -> OwningDeviceInfoProvider {
 
-        // Инициализация устройств
         let socket1 = SmartSocket {name: smart_house::NAME_DEV_1.to_string(), state: String::from("working")};
 
         OwningDeviceInfoProvider {
@@ -56,8 +53,7 @@ impl smart_house::DeviceInfoProvider for OwningDeviceInfoProvider {
 }
 
 
-pub fn run_owning_provider() {
-    // Строим отчёт с использованием `OwningDeviceInfoProvider`.
+pub fn run_owning_provider() -> String {
     let info_provider_1 = OwningDeviceInfoProvider::new();
 
     let rooms = info_provider_1.get_rooms();
@@ -68,8 +64,8 @@ pub fn run_owning_provider() {
 
     let report1 = info_provider_1.create_report();
 
-    // Выводим отчёты на экран:
     println!("Report #1: {report1}");
+    report1
 }
 
 
