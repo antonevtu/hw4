@@ -16,6 +16,10 @@ struct Room {
 impl SmartHouse {
 
     /// Creates SmartHouse object with static content
+    /// ```
+    /// use hw4::smart_house::smart_house;
+    /// let house = smart_house::SmartHouse::new();
+    /// ```
     pub fn new() -> Self {
         let mut s = SmartHouse {
             name: String::from("My smart_house"),
