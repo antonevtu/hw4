@@ -10,18 +10,26 @@ fn test_owning_provider() {
             result = false;
         }
     }
-    assert_eq!(result, true);
+    assert!(result);
 }
 
 #[test]
 fn test_borrowing_provider() {
     let report = borrowing_house::run_borrowing_provider();
-    let keywords = ["Room A", "Room B", "Socket 2", "Thermo 1", "state", "not found", "25.4°C"];
+    let keywords = [
+        "Room A",
+        "Room B",
+        "Socket 2",
+        "Thermo 1",
+        "state",
+        "not found",
+        "25.4°C",
+    ];
     let mut result = true;
     for word in keywords {
         if !report.contains(word) {
             result = false;
         }
     }
-    assert_eq!(result, true);
+    assert!(result);
 }

@@ -1,29 +1,30 @@
-use crate::smart_house::smart_house;
+use crate::smart_house_dir::smart_house;
 
 // Пользовательские устройства:
 pub struct SmartSocket {
     pub name: String,
-    pub state: String
+    pub state: String,
 }
 pub struct SmartThermometer {
     pub name: String,
-    pub temperature: f32
+    pub temperature: f32,
 }
 
 pub struct BorrowingDeviceInfoProvider<'a, 'b> {
     socket: &'a SmartSocket,
     thermo: &'b SmartThermometer,
-    pub house: smart_house::SmartHouse
+    pub house: smart_house::SmartHouse,
 }
 
 impl BorrowingDeviceInfoProvider<'_, '_> {
-    pub fn new<'a>(socket: &'a SmartSocket, thermo: &'a SmartThermometer) -> BorrowingDeviceInfoProvider<'a, 'a> {
-
-
+    pub fn new<'a>(
+        socket: &'a SmartSocket,
+        thermo: &'a SmartThermometer,
+    ) -> BorrowingDeviceInfoProvider<'a, 'a> {
         BorrowingDeviceInfoProvider {
             socket,
             thermo,
-            house: smart_house::SmartHouse::new()
+            house: smart_house::SmartHouse::new(),
         }
     }
 
@@ -40,13 +41,19 @@ impl BorrowingDeviceInfoProvider<'_, '_> {
     }
 }
 
-impl <'a, 'b> smart_house::DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
+impl<'a, 'b> smart_house::DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
     fn get_device_info(&self, room: &str, name: &str) -> String {
         let info: String;
         if self.socket.name == name {
-            info = format!("room: {}, device: {}, state: {}", room, self.socket.name, self.socket.state);
+            info = format!(
+                "room: {}, device: {}, state: {}",
+                room, self.socket.name, self.socket.state
+            );
         } else if self.thermo.name == name {
-            info = format!("room: {}, device: {}, state: {}°C", room, self.thermo.name, self.thermo.temperature);
+            info = format!(
+                "room: {}, device: {}, state: {}°C",
+                room, self.thermo.name, self.thermo.temperature
+            );
         } else {
             info = format!("room: {}, device: {}, not found", room, self.socket.name);
         }
@@ -55,8 +62,14 @@ impl <'a, 'b> smart_house::DeviceInfoProvider for BorrowingDeviceInfoProvider<'a
 }
 
 pub fn run_borrowing_provider() -> String {
-    let socket2 = SmartSocket {name: smart_house::NAME_DEV_2.to_string(), state: String::from("broken")};
-    let thermo = SmartThermometer {name: smart_house::NAME_DEV_3.to_string(), temperature: 25.4};
+    let socket2 = SmartSocket {
+        name: smart_house::NAME_DEV_2.to_string(),
+        state: String::from("broken"),
+    };
+    let thermo = SmartThermometer {
+        name: smart_house::NAME_DEV_3.to_string(),
+        temperature: 25.4,
+    };
 
     let info_provider_2 = BorrowingDeviceInfoProvider::new(&socket2, &thermo);
 
@@ -64,7 +77,10 @@ pub fn run_borrowing_provider() -> String {
     println!("{} rooms: {:?}", info_provider_2.house.name, rooms);
 
     let devices = info_provider_2.get_devices();
-    println!("{} Room B devices: {:?}", info_provider_2.house.name, devices);
+    println!(
+        "{} Room B devices: {:?}",
+        info_provider_2.house.name, devices
+    );
 
     let report2 = info_provider_2.create_report();
 
